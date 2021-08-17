@@ -21,8 +21,9 @@ namespace hnswlib {
 
         }
 
-        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::string &location, bool nmslib = false, size_t max_elements=0) {
-            loadIndex(location, s, max_elements);
+        HierarchicalNSW(SpaceInterface<dist_t> *s, const std::string &location, size_t index_buf_size = 0,
+                        bool nmslib = false, size_t max_elements=0) {
+            loadIndex(location, s, index_buf_size, max_elements);
         }
 
         HierarchicalNSW(SpaceInterface<dist_t> *s, size_t max_elements, size_t M = 16, size_t ef_construction = 200, size_t random_seed = 100) :
@@ -622,7 +623,7 @@ namespace hnswlib {
             output.close();
         }
 
-        void loadIndex(const std::string &location, SpaceInterface<dist_t> *s, size_t max_elements_i=0) {
+        void loadIndex(const std::string &location, SpaceInterface<dist_t> *s, size_t index_buf_size = 0, size_t max_elements_i=0) {
 
 
             std::ifstream input(location, std::ios::binary);
@@ -632,7 +633,7 @@ namespace hnswlib {
 
             // get file size:
             input.seekg(0,input.end);
-            std::streampos total_filesize=input.tellg();
+            std::streampos total_filesize = index_buf_size == 0 ? input.tellg() : static_cast<std::streampos>(index_buf_size);
             input.seekg(0,input.beg);
 
             readBinaryPOD(input, offsetLevel0_);
